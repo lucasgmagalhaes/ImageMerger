@@ -12,7 +12,6 @@ const folders = new Array<Folder>();
 
 function init() {
 
-
   function getFolderName(file: File) {
     return file.webkitRelativePath.split("/")[1];
   }
@@ -71,18 +70,17 @@ function init() {
       });
   }
 
+  const generatorButton = document.getElementById("generator") as HTMLButtonElement;
+  const filePicker = document.getElementById("filepicker");
+  const downloadButton = document.getElementById("downloader") as HTMLButtonElement;;
 
-  const _window = window as any;
-
-  _window.generate = () => {
+  generatorButton.addEventListener("click", () => {
     const _folders = cache.getFolders();
     _generate(0, _folders);
-  }
+  });
 
-  _window.download = download;
+  downloadButton.addEventListener("click", () => download());
 
-
-  const filePicker = document.getElementById("filepicker");
   filePicker?.addEventListener("change", function (event) {
     const files = (event.target as HTMLInputElement)?.files;
 
