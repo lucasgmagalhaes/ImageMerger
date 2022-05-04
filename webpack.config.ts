@@ -28,13 +28,13 @@ const config: Configuration = {
         extensions: [".ts", ".js"],
     },
     output: {
-        path: path.resolve(__dirname, "dist"),
+        path: path.resolve(__dirname, "docs"),
         filename: "bundle.js",
         devtoolModuleFilenameTemplate: '[absolute-resource-path]'
     },
     devtool: "source-map",
     devServer: {
-        static: path.join(__dirname, "dist"),
+        static: path.join(__dirname, "docs"),
         compress: true,
         port: 4000,
     },
