@@ -5,23 +5,10 @@ import mergeImages from "merge-images";
 import { fileList } from "./utils";
 import JSZip from "jszip";
 import { saveAs } from 'file-saver';
-
-interface Folder {
-  folderName: string
-  files: string[];
-}
+import { Folder } from "./types";
+import { cache } from "./cache";
 
 const folders = new Array<Folder>();
-
-function compare(a: Folder, b: Folder) {
-  if (a.folderName < b.folderName) {
-    return -1;
-  }
-  if (a.folderName > b.folderName) {
-    return 1;
-  }
-  return 0;
-}
 
 function init() {
 
@@ -64,7 +51,8 @@ function init() {
       folder.files.push(url);
     }
 
-    console.log(folders);
+    console.log(folders); 
+    cache.setFolders(folders);
     addLoadedFiles(urls);
   }, false);
 }
@@ -93,14 +81,14 @@ function getGeneratedFilesContainer() {
   return document.querySelector(".generated-img-container") as HTMLDivElement;
 }
 
-export function _generate(folderIndex: number, ...gotFiles: string[]) {
+export function _generate(folderIndex: number, folders: Folder[], ...gotFiles: string[]) {
   if (gotFiles.length == folders.length) {
     mergeImages(gotFiles).then(appendGeneratedImg);
     return;
   }
 
   for (let index = 0; index < folders[folderIndex].files?.length; index++) {
-    _generate(folderIndex + 1, ...gotFiles, folders[folderIndex].files[index]);
+    _generate(folderIndex + 1, folders, ...gotFiles, folders[folderIndex].files[index]);
   }
 }
 
@@ -113,32 +101,16 @@ function appendGeneratedImg(b64: string) {
   div.append(img);
 }
 
-function loadAsArrayBuffer(url: string, callback: (response: any, url: any) => void) {
-  const xhr = new XMLHttpRequest();
-  xhr.open("GET", url);
-  xhr.responseType = "arraybuffer";
-  xhr.onerror = function () {console.log(xhr) };
-  xhr.onload = function () {
-    if (xhr.status === 200) { callback(xhr.response, url) }
-    else {console.log(xhr) }
-  };
-  xhr.send();
-}
-
-function getFilename(url: string) {
-  return url.substr(url.lastIndexOf("/") + 1)
-}
-
 function download() {
   const zip = new JSZip();
   generated.forEach((g, i) => {
-    loadAsArrayBuffer(g, (buffer, url) => {
-      const filename = getFilename(url);
-      zip.file(filename, buffer);
-    });
+    const baseFile = g.split(';base64,')[1];
+    console.log(baseFile);
+    zip.file(`generated${i}.png`, baseFile, { base64: true });
   });
   zip.generateAsync({ type: "blob" })
     .then(content => {
+      console.log(content);
       saveAs(content, "generatedFiles.zip");
     });
 }
@@ -147,7 +119,8 @@ function download() {
 const _window = window as any;
 
 _window.generate = () => {
-  _generate(0);
+  const _folders = cache.getFolders();
+  _generate(0, _folders);
 }
 
 _window.download = download;
