@@ -99,7 +99,7 @@ export function _generate(folderIndex: number, ...gotFiles: string[]) {
     return;
   }
 
-  for (let index = 0; index < folders[folderIndex].files.length; index++) {
+  for (let index = 0; index < folders[folderIndex].files?.length; index++) {
     _generate(folderIndex + 1, ...gotFiles, folders[folderIndex].files[index]);
   }
 }
