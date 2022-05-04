@@ -12,6 +12,76 @@ const folders = new Array<Folder>();
 
 function init() {
 
+
+  function getFolderName(file: File) {
+    return file.webkitRelativePath.split("/")[1];
+  }
+
+  function addLoadedFiles(urls: string[]) {
+    const div = getLoadFilesContainer();
+    div.append(...urls.map(u => createImg(u)));
+  }
+
+  function createImg(src: string) {
+    const img = document.createElement("img");
+    img.classList.add("loaded-img");
+    img.src = src;
+    return img;
+  }
+
+  function getLoadFilesContainer() {
+    return document.querySelector(".loaded-img-container") as HTMLDivElement;
+  }
+
+  function getGeneratedFilesContainer() {
+    return document.querySelector(".generated-img-container") as HTMLDivElement;
+  }
+
+  function _generate(folderIndex: number, folders: Folder[], ...gotFiles: string[]) {
+    if (gotFiles.length == folders.length) {
+      mergeImages(gotFiles).then(appendGeneratedImg);
+      return;
+    }
+
+    for (let index = 0; index < folders[folderIndex].files?.length; index++) {
+      _generate(folderIndex + 1, folders, ...gotFiles, folders[folderIndex].files[index]);
+    }
+  }
+
+  const generated: string[] = [];
+
+  function appendGeneratedImg(b64: string) {
+    const div = getGeneratedFilesContainer();
+    generated.push(b64);
+    const img = createImg(b64);
+    div.append(img);
+  }
+
+  function download() {
+    const zip = new JSZip();
+    generated.forEach((g, i) => {
+      const baseFile = g.split(';base64,')[1];
+      console.log(baseFile);
+      zip.file(`generated${i}.png`, baseFile, { base64: true });
+    });
+    zip.generateAsync({ type: "blob" })
+      .then(content => {
+        console.log(content);
+        saveAs(content, "generatedFiles.zip");
+      });
+  }
+
+
+  const _window = window as any;
+
+  _window.generate = () => {
+    const _folders = cache.getFolders();
+    _generate(0, _folders);
+  }
+
+  _window.download = download;
+
+
   const filePicker = document.getElementById("filepicker");
   filePicker?.addEventListener("change", function (event) {
     const files = (event.target as HTMLInputElement)?.files;
@@ -51,78 +121,10 @@ function init() {
       folder.files.push(url);
     }
 
-    console.log(folders); 
+    console.log(folders);
     cache.setFolders(folders);
     addLoadedFiles(urls);
   }, false);
 }
-
-function getFolderName(file: File) {
-  return file.webkitRelativePath.split("/")[1];
-}
-
-function addLoadedFiles(urls: string[]) {
-  const div = getLoadFilesContainer();
-  div.append(...urls.map(u => createImg(u)));
-}
-
-function createImg(src: string) {
-  const img = document.createElement("img");
-  img.classList.add("loaded-img");
-  img.src = src;
-  return img;
-}
-
-function getLoadFilesContainer() {
-  return document.querySelector(".loaded-img-container") as HTMLDivElement;
-}
-
-function getGeneratedFilesContainer() {
-  return document.querySelector(".generated-img-container") as HTMLDivElement;
-}
-
-export function _generate(folderIndex: number, folders: Folder[], ...gotFiles: string[]) {
-  if (gotFiles.length == folders.length) {
-    mergeImages(gotFiles).then(appendGeneratedImg);
-    return;
-  }
-
-  for (let index = 0; index < folders[folderIndex].files?.length; index++) {
-    _generate(folderIndex + 1, folders, ...gotFiles, folders[folderIndex].files[index]);
-  }
-}
-
-const generated: string[] = [];
-
-function appendGeneratedImg(b64: string) {
-  const div = getGeneratedFilesContainer();
-  generated.push(b64);
-  const img = createImg(b64);
-  div.append(img);
-}
-
-function download() {
-  const zip = new JSZip();
-  generated.forEach((g, i) => {
-    const baseFile = g.split(';base64,')[1];
-    console.log(baseFile);
-    zip.file(`generated${i}.png`, baseFile, { base64: true });
-  });
-  zip.generateAsync({ type: "blob" })
-    .then(content => {
-      console.log(content);
-      saveAs(content, "generatedFiles.zip");
-    });
-}
-
-
-const _window = window as any;
-
-_window.generate = () => {
-  const _folders = cache.getFolders();
-  _generate(0, _folders);
-}
-
-_window.download = download;
 
 init();
