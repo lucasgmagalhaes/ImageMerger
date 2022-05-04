@@ -1,0 +1,107 @@
+html,
+body {
+  height: 100%;
+  display: flex;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  flex-direction: column;
+}
+
+.box {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.box div {
+  width: 100%;
+  height: 100%;
+  min-height: 2;
+}
+
+header {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  width: 100%;
+  height: 20%;
+  margin-top: 200px;
+}
+
+img {
+  height: 120px;
+}
+
+.loaded-img-container {
+  display: flex;
+  min-height: 140px;
+  max-width: 80%;
+  padding: 17px 36px;
+  box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%);
+  margin: 0px 15px;
+  overflow: auto;
+  overflow-y: hidden;
+  max-width: 5;
+}
+
+.generated-img-container {
+  display: flex;
+  max-width: 80%;
+  padding: 17px 36px;
+  box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%);
+  margin: 0px 15px;
+  overflow-x: hidden;
+  flex-wrap: wrap;
+  overflow-y: scroll;
+  margin-bottom: 5;
+}
+
+.loaded-img {
+  padding: 10px;
+}
+
+.column {
+  flex-direction: column;
+}
+
+.button {
+  margin: 30px 0px;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: #f4511e;
+  border: none;
+  color: #ffffff;
+  text-align: center;
+  font-size: 22px;
+  padding: 20px;
+  width: 200px;
+  transition: all 0.5s;
+  cursor: pointer;
+}
+
+.button span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+
+.button span:after {
+  content: "\00bb";
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -20px;
+  transition: 0.5s;
+}
+
+.button:hover span {
+  padding-right: 25px;
+}
+
+.button:hover span:after {
+  opacity: 1;
+  right: 0;
+}
